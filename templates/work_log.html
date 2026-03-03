@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Log - Smart Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+   <style>
+    /* ==================== WORK LOG PAGE STYLES ==================== */
+/* Matching your brand colors: #0F9D8A (Teal), #7ED957 (Green) */
+
+:root {
+    --primary: #0F9D8A;
+    --secondary: #7ED957;
+    --primary-dark: #0B6E63;
+    --primary-light: #E8F8F5;
+    --white: #FFFFFF;
+    --primary-gradient: linear-gradient(135deg, #0F9D8A, #7ED957);
+    --soft-gradient: linear-gradient(135deg, #1FAF9C, #9BE15D);
+    --text-dark: #2C3E50;
+    --text-light: #6c757d;
+    --text-muted: #95a5a6;
+    --shadow-sm: 0 4px 12px rgba(15,157,138,0.15);
+    --shadow-md: 0 6px 18px rgba(15,157,138,0.25);
+    --shadow-lg: 0 8px 24px rgba(15,157,138,0.35);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.3s ease;
+}
+
+body {
+    background: var(--primary-light);
+    font-family: 'Inter', sans-serif;
+}
+
+.worklog-container {
+    max-width: 800px;
+    margin: 30px auto;
+    padding: 0 15px;
+}
+
+.worklog-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--primary);
+    transition: var(--transition);
+}
+
+.worklog-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.worklog-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.worklog-header h2 {
+    font-size: 28px;
+    color: var(--primary);
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.worklog-header p {
+    color: var(--text-light);
+    font-size: 14px;
+}
+
+/* Date Info */
+.date-info {
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    border: 1px solid rgba(15,157,138,0.3);
+}
+
+.date-info .date {
+    font-size: 16px;
+    color: var(--primary-dark);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.date-info .date i {
+    color: var(--primary);
+}
+
+.date-info .day {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 5px 20px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(15,157,138,0.2);
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.status-submitted {
+    background: rgba(40,167,69,0.15);
+    color: #28a745;
+    border: 1px solid rgba(40,167,69,0.3);
+}
+
+.status-pending {
+    background: rgba(255,193,7,0.15);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.3);
+}
+
+.status-saved {
+    background: rgba(15,157,138,0.15);
+    color: var(--primary);
+    border: 1px solid rgba(15,157,138,0.3);
+}
+
+/* Edit Info */
+.edit-info {
+    background: rgba(15,157,138,0.1);
+    border-radius: var(--radius-md);
+    padding: 15px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--primary);
+    font-size: 14px;
+    border: 1px solid rgba(15,157,138,0.2);
+}
+
+.edit-info span {
+    font-size: 20px;
+    background: var(--primary-gradient);
+    color: white;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Form Groups */
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary-dark);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-group label i {
+    color: var(--primary);
+    margin-right: 5px;
+}
+
+/* Input Fields */
+.glass-input {
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--white);
+    border: 2px solid #FFD700;
+    border-radius: var(--radius-md);
+    color: var(--text-dark);
+    font-size: 15px;
+    transition: var(--transition);
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: #FFA500;
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.2);
+}
+
+.glass-input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+textarea.glass-input {
+    resize: vertical;
+    min-height: 140px;
+    line-height: 1.6;
+}
+
+/* Character Counter */
+.char-counter {
+    text-align: right;
+    font-size: 12px;
+    color: var(--text-light);
+    margin-top: 5px;
+    font-weight: 500;
+}
+
+.char-counter.warning {
+    color: #ffc107;
+}
+
+.char-counter.danger {
+    color: #dc3545;
+}
+
+.char-counter.success {
+    color: #28a745;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.glass-btn {
+    flex: 1;
+    padding: 14px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: center;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 50px;
+}
+
+.glass-btn.primary {
+    background: var(--primary-gradient);
+    color: white;
+    box-shadow: 0 4px 15px rgba(15,157,138,0.3);
+}
+
+.glass-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(15,157,138,0.4);
+}
+
+.glass-btn.secondary {
+    background: var(--white);
+    color: var(--primary);
+    border: 2px solid #FFD700;
+}
+
+.glass-btn.secondary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+.glass-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+/* Loading state for button */
+.glass-btn.loading {
+    position: relative;
+    color: transparent !important;
+}
+
+.glass-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Messages */
+.message {
+    padding: 15px 20px;
+    border-radius: var(--radius-md);
+    margin: 20px 0;
+    display: none;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    animation: slideIn 0.3s ease;
+}
+
+.message.success {
+    background: rgba(40,167,69,0.1);
+    color: #28a745;
+    border: 1px solid rgba(40,167,69,0.3);
+    display: block;
+}
+
+.message.error {
+    background: rgba(220,53,69,0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220,53,69,0.3);
+    display: block;
+}
+
+.message.warning {
+    background: rgba(255,193,7,0.1);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.3);
+    display: block;
+}
+
+.message.info {
+    background: rgba(15,157,138,0.1);
+    color: var(--primary);
+    border: 1px solid rgba(15,157,138,0.3);
+    display: block;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* History Section */
+.history-section {
+    margin-top: 40px;
+}
+
+.history-section h3 {
+    color: var(--primary);
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.history-section h3 i {
+    color: var(--primary);
+}
+
+.history-item {
+    background: var(--white);
+    border-radius: var(--radius-md);
+    padding: 18px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    border: 1px solid rgba(15,157,138,0.2);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+}
+
+.history-item:hover {
+    transform: translateX(5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.history-date {
+    color: var(--primary-dark);
+    font-size: 14px;
+    min-width: 100px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.history-date i {
+    color: var(--primary);
+}
+
+.history-desc {
+    color: var(--text-dark);
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.history-hours {
+    background: var(--primary-gradient);
+    padding: 5px 15px;
+    border-radius: 30px;
+    color: white;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(15,157,138,0.2);
+}
+
+/* No Data State */
+.no-data {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+    font-size: 14px;
+    background: var(--primary-light);
+    border-radius: var(--radius-md);
+    border: 1px dashed var(--primary);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Tablet */
+@media (max-width: 768px) {
+    .worklog-card {
+        padding: 25px;
+    }
+    
+    .worklog-header h2 {
+        font-size: 24px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .glass-btn {
+        width: 100%;
+    }
+    
+    .history-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .history-date {
+        min-width: auto;
+    }
+    
+    .history-desc {
+        width: 100%;
+    }
+    
+    .history-hours {
+        align-self: flex-end;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .worklog-container {
+        margin: 15px auto;
+    }
+    
+    .worklog-card {
+        padding: 20px;
+    }
+    
+    .worklog-header h2 {
+        font-size: 22px;
+    }
+    
+    .date-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .date-info .date {
+        width: 100%;
+    }
+    
+    .date-info .day {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .glass-input {
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    textarea.glass-input {
+        min-height: 120px;
+    }
+    
+    .edit-info {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .history-item {
+        padding: 15px;
+    }
+    
+    .history-hours {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+/* Small Mobile */
+@media (max-width: 360px) {
+    .worklog-card {
+        padding: 15px;
+    }
+    
+    .worklog-header h2 {
+        font-size: 20px;
+    }
+    
+    .worklog-header p {
+        font-size: 12px;
+    }
+    
+    .date-info {
+        padding: 12px;
+    }
+    
+    .date-info .date {
+        font-size: 14px;
+    }
+    
+    .glass-btn {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .worklog-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .glass-btn,
+    .history-section {
+        display: none;
+    }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.worklog-card,
+.history-item {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Success checkmark animation */
+@keyframes checkmark {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.message.success i {
+    animation: checkmark 0.5s ease;
+}
+   </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="/employee/dashboard" class="nav-logo">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo">
+                <span>Attendance System</span>
+            </a>
+            <div class="nav-menu">
+                <a href="/employee/dashboard" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/employee/history" class="nav-link">
+                    <span>📅</span> History
+                </a>
+                <a href="/employee/profile" class="nav-link">
+                    <span>👤</span> Profile
+                </a>
+                <a href="/work-log" class="nav-link active">
+                    <span>📝</span> Work Log
+                </a>
+                <a href="/logout" class="nav-link">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="worklog-container">
+            <div class="worklog-card">
+                <div class="worklog-header">
+                    <h2>Daily Work Log 📝</h2>
+                    <p>You can edit your work log multiple times today</p>
+                </div>
+
+                <!-- Date Info -->
+                <div class="date-info">
+                    <span class="date" id="currentDate"></span>
+                    <span class="day" id="currentDay"></span>
+                </div>
+
+                <!-- Status and Edit Info -->
+                <div id="statusContainer" style="display: none;">
+                    <div class="edit-info">
+                        <span>✏️</span>
+                        <span>You can edit this work log multiple times today. Each update will be saved.</span>
+                    </div>
+                </div>
+
+                <!-- Form -->
+                <form id="workLogForm">
+                    <div class="form-group">
+                        <label>Work Description <span style="color: var(--error-color);">*</span></label>
+                        <textarea class="glass-input" id="workDescription" rows="5" 
+                                  placeholder="Describe what you worked on today (minimum 20 characters)"
+                                  required></textarea>
+                        <div class="char-counter" id="charCounter">0/20 characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hours Worked</label>
+                        <input type="number" class="glass-input" id="hoursWorked" 
+                               value="8" min="1" max="24" step="0.5" required>
+                    </div>
+
+                    <!-- Message Display -->
+                    <div class="message" id="message"></div>
+
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <button type="button" class="glass-btn secondary" onclick="window.location.href='/employee/dashboard'">
+                            Cancel
+                        </button>
+                        <button type="submit" class="glass-btn primary" id="submitBtn">
+                            Submit Work Log
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Recent History -->
+                <div class="history-section">
+                    <h3>📋 Recent Work Logs</h3>
+                    <div id="recentLogs">
+                        <div class="history-item">
+                            <div class="history-date">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        }
+
+        // Set current date
+        const today = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('currentDate').textContent = today.toLocaleDateString('en-US', options);
+        
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        document.getElementById('currentDay').textContent = days[today.getDay()];
+
+        // Character counter
+        const workDescription = document.getElementById('workDescription');
+        const charCounter = document.getElementById('charCounter');
+
+        workDescription.addEventListener('input', function() {
+            const length = this.value.length;
+            charCounter.textContent = `${length}/20 characters (minimum 20)`;
+            
+            if (length < 20) {
+                charCounter.className = 'char-counter danger';
+            } else if (length < 50) {
+                charCounter.className = 'char-counter warning';
+            } else {
+                charCounter.className = 'char-counter';
+            }
+        });
+
+        // Load today's work log
+        async function loadTodayLog() {
+            try {
+                const response = await fetch('/api/work-log');
+                const data = await response.json();
+                
+                if (data.success) {
+                    if (data.log) {
+                        workDescription.value = data.log.work_description || '';
+                        document.getElementById('hoursWorked').value = data.log.hours_worked || '8';
+                        
+                        // Trigger character counter
+                        workDescription.dispatchEvent(new Event('input'));
+                        
+                        // Show status
+                        if (data.log.submitted_at) {
+                            document.getElementById('statusContainer').style.display = 'block';
+                            
+                            // Change button text to "Update Work Log"
+                            document.getElementById('submitBtn').textContent = 'Update Work Log';
+                            
+                            // Show last updated time
+                            const lastUpdated = new Date(data.log.submitted_at).toLocaleTimeString();
+                            const editInfo = document.querySelector('.edit-info span:last-child');
+                            if (editInfo) {
+                                editInfo.textContent = `Last updated at ${lastUpdated}. You can edit again.`;
+                            }
+                        }
+                    } else {
+                        // New log
+                        document.getElementById('submitBtn').textContent = 'Submit Work Log';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading work log:', error);
+            }
+        }
+
+        // Load recent logs
+        async function loadRecentLogs() {
+            try {
+                const response = await fetch('/api/employee/work-log-history');
+                const data = await response.json();
+                
+                const recentLogsDiv = document.getElementById('recentLogs');
+                
+                if (data.success && data.logs && data.logs.length > 0) {
+                    let html = '';
+                    data.logs.slice(0, 5).forEach(log => {
+                        html += `
+                            <div class="history-item">
+                                <div class="history-date">${log.date}</div>
+                                <div class="history-desc">${log.description.substring(0, 50)}${log.description.length > 50 ? '...' : ''}</div>
+                                <div class="history-hours">${log.hours} hrs</div>
+                            </div>
+                        `;
+                    });
+                    recentLogsDiv.innerHTML = html;
+                } else {
+                    recentLogsDiv.innerHTML = `
+                        <div class="history-item">
+                            <div class="history-date">No work logs yet</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading recent logs:', error);
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('workLogForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const description = workDescription.value.trim();
+            const hours = document.getElementById('hoursWorked').value;
+            
+            const messageDiv = document.getElementById('message');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Validate
+            if (!description) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'Please enter work description';
+                return;
+            }
+            
+            if (description.length < 20) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'Work description must be at least 20 characters';
+                return;
+            }
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+            
+            try {
+                const response = await fetch('/api/work-log', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        work_description: description,
+                        hours_worked: hours
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    messageDiv.className = 'message success';
+                    messageDiv.textContent = data.message;
+                    
+                    // Reload data after 2 seconds
+                    setTimeout(() => {
+                        loadTodayLog();
+                        loadRecentLogs();
+                        messageDiv.style.display = 'none';
+                    }, 2000);
+                } else {
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = data.message;
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = workDescription.value ? 'Update Work Log' : 'Submit Work Log';
+                }
+            } catch (error) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'Network error. Please try again.';
+                submitBtn.disabled = false;
+                submitBtn.textContent = workDescription.value ? 'Update Work Log' : 'Submit Work Log';
+            }
+        });
+
+        // Initialize
+        loadTodayLog();
+        loadRecentLogs();
+    </script>
+</body>
+</html>

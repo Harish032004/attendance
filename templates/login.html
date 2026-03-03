@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Smart Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphic.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .login-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            max-width: 400px;
+            width: 100%;
+            animation: slideIn 0.5s ease;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff 0%, #e0e0e0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .login-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .login-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            border-radius: 12px;
+        }
+
+        .login-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .login-tab.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .glass-input.with-icon {
+            padding-left: 45px;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-primary);
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .login-footer a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            min-height: 20px;
+        }
+
+        .success-message {
+            color: var(--success-color);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .remember-me input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin: 10px 0 20px;
+        }
+
+        .forgot-password a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password a:hover {
+            color: var(--text-primary);
+        }
+    </style>
+  <style>
+   
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(12px, 4vw, 24px);
+    background: var(--primary-gradient);
+    position: relative;
+    overflow: hidden;
+}
+
+
+.login-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+    animation: rotate 30s linear infinite;
+    z-index: 0;
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.login-card {
+    max-width: 440px;
+    width: 100%;
+    animation: slideIn 0.6s ease;
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: clamp(24px, 6vw, 40px);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid rgba(15,157,138,0.15);
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 32px rgba(15,157,138,0.3);
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: clamp(20px, 5vw, 32px);
+}
+
+.login-logo {
+    width: clamp(60px, 15vw, 90px);
+    height: clamp(60px, 15vw, 90px);
+    margin-bottom: clamp(16px, 4vw, 24px);
+    animation: pulse 2s infinite;
+    filter: drop-shadow(0 4px 12px rgba(15,157,138,0.3));
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.login-title {
+    font-size: clamp(1.8rem, 6vw, 2.2rem);
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+}
+
+.login-subtitle {
+    color: var(--text-light);
+    font-size: clamp(0.85rem, 2vw, 0.95rem);
+}
+
+.login-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: clamp(20px, 5vw, 30px);
+    background: var(--primary-light);
+    padding: 4px;
+    border-radius: 40px;
+    border: 1px solid rgba(15,157,138,0.15);
+}
+
+.login-tab {
+    flex: 1;
+    padding: clamp(10px, 2vw, 12px);
+    text-align: center;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 600;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    color: var(--text-light);
+}
+
+.login-tab.active {
+    background: var(--primary-gradient);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(15,157,138,0.3);
+}
+
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary-dark);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--primary);
+    font-size: 1.1rem;
+    z-index: 1;
+}
+
+.glass-input {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid rgba(15,157,138,0.3);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: var(--transition);
+    background: var(--white);
+    color: var(--text-dark);
+}
+
+.glass-input.with-icon {
+    padding-left: 45px;
+}
+
+.glass-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(15,157,138,0.2);
+}
+
+.glass-input::placeholder {
+    color: var(--text-light);
+    opacity: 0.7;
+}
+
+
+.toggle-password {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 1;
+}
+
+.toggle-password:hover {
+    background: var(--primary-light);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.toggle-password i {
+    font-size: 1.2rem;
+}
+
+
+.remember-me {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.remember-me label {
+    color: var(--text-light);
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.forgot-password {
+    text-align: right;
+    margin: 10px 0 20px;
+}
+
+.forgot-password a {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.forgot-password a:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+}
+
+
+.login-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--primary-gradient);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(15,157,138,0.3);
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.login-btn:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+.login-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(15,157,138,0.4);
+}
+
+.login-btn:active {
+    transform: translateY(0);
+}
+
+.login-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    min-height: 20px;
+    padding-left: 4px;
+}
+
+.success-message {
+    color: #28a745;
+    font-size: 0.85rem;
+    margin-top: 5px;
+}
+
+
+.login-footer {
+    text-align: center;
+    margin-top: clamp(20px, 5vw, 30px);
+    padding-top: 20px;
+    border-top: 1px solid rgba(15,157,138,0.15);
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+.login-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.login-footer a:hover {
+    color: var(--secondary);
+    text-decoration: underline;
+}
+
+
+@media (max-width: 1024px) {
+    .login-card {
+        max-width: 400px;
+        padding: 32px;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        padding: 16px;
+    }
+    
+    .login-card {
+        max-width: 380px;
+        padding: 28px 24px;
+    }
+    
+    .login-title {
+        font-size: 1.8rem;
+    }
+    
+    .glass-input {
+        padding: 12px 14px;
+    }
+    
+    .glass-input.with-icon {
+        padding-left: 42px;
+    }
+    
+    .input-icon {
+        left: 14px;
+        font-size: 1rem;
+    }
+    
+    .toggle-password {
+        right: 14px;
+    }
+    
+    .login-btn {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        padding: 12px;
+    }
+    
+    .login-card {
+        padding: 24px 20px;
+    }
+    
+    .login-logo {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .login-title {
+        font-size: 1.6rem;
+    }
+    
+    .login-subtitle {
+        font-size: 0.85rem;
+    }
+    
+    .login-tabs {
+        margin-bottom: 24px;
+    }
+    
+    .login-tab {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+        margin-bottom: 6px;
+    }
+    
+    .glass-input {
+        padding: 12px;
+        font-size: 0.95rem;
+    }
+    
+    .glass-input.with-icon {
+        padding-left: 40px;
+    }
+    
+    .input-icon {
+        left: 12px;
+        font-size: 0.95rem;
+    }
+    
+    .toggle-password {
+        right: 12px;
+    }
+    
+    .toggle-password i {
+        font-size: 1.1rem;
+    }
+    
+    .remember-me {
+        margin-bottom: 16px;
+    }
+    
+    .remember-me label {
+        font-size: 0.85rem;
+    }
+    
+    .forgot-password a {
+        font-size: 0.85rem;
+    }
+    
+    .login-btn {
+        padding: 14px;
+        font-size: 0.95rem;
+    }
+    
+    .login-footer {
+        font-size: 0.85rem;
+        margin-top: 24px;
+        padding-top: 16px;
+    }
+}
+
+
+@media (max-width: 360px) {
+    .login-card {
+        padding: 20px 16px;
+    }
+    
+    .login-logo {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .login-title {
+        font-size: 1.4rem;
+    }
+    
+    .login-subtitle {
+        font-size: 0.8rem;
+    }
+    
+    .login-tabs {
+        gap: 4px;
+    }
+    
+    .login-tab {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+    
+    .form-group {
+        margin-bottom: 16px;
+    }
+    
+    .glass-input {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .glass-input.with-icon {
+        padding-left: 36px;
+    }
+    
+    .input-icon {
+        left: 10px;
+        font-size: 0.9rem;
+    }
+    
+    .toggle-password {
+        right: 10px;
+    }
+    
+    .toggle-password i {
+        font-size: 1rem;
+    }
+    
+    .login-btn {
+        padding: 12px;
+        font-size: 0.9rem;
+    }
+    
+    .login-footer {
+        font-size: 0.8rem;
+        margin-top: 20px;
+        padding-top: 12px;
+    }
+}
+
+@media (hover: none) and (pointer: coarse) {
+    .login-tab,
+    .toggle-password,
+    .login-btn,
+    .forgot-password a,
+    .login-footer a {
+        min-height: 44px;
+        min-width: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .glass-input {
+        font-size: 16px; 
+    }
+}
+
+
+@media (prefers-color-scheme: dark) {
+    .login-card {
+        background: rgba(255,255,255,0.95);
+    }
+    
+    .login-container {
+        background: linear-gradient(135deg, #0B6E63, #0F9D8A);
+    }
+}
+
+@media print {
+    .login-container {
+        background: white;
+        min-height: auto;
+        padding: 20px;
+    }
+    
+    .login-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        padding: 20px;
+    }
+    
+    .login-btn,
+    .login-tabs,
+    .toggle-password {
+        display: none;
+    }
+}
+
+.login-btn.loading {
+    position: relative;
+    color: transparent;
+}
+
+.login-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--white);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+}
+
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.glass-input.error {
+    border-color: #dc3545;
+}
+
+.glass-input.success {
+    border-color: #28a745;
+}
+
+
+.floating-label {
+    position: relative;
+}
+
+.floating-label input:focus + label,
+.floating-label input:not(:placeholder-shown) + label {
+    transform: translateY(-24px) scale(0.85);
+    color: var(--primary);
+}
+    </style> 
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card glass-card">
+            <div class="login-header">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo" class="login-logo">
+                <h1 class="login-title">Welcome Back</h1>
+                <p class="login-subtitle">Sign in to continue to Attendance System</p>
+            </div>
+
+            <div class="login-tabs">
+                <div class="login-tab {% if user_type == 'employee' %}active{% endif %}" onclick="switchTab('employee')">
+                    Employee
+                </div>
+                <div class="login-tab {% if user_type == 'admin' %}active{% endif %}" onclick="switchTab('admin')">
+                    Admin
+                </div>
+            </div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label" id="idLabel">
+                        {% if user_type == 'employee' %}
+                            Employee ID
+                        {% else %}
+                            Admin ID
+                        {% endif %}
+                    </label>
+                    <div class="input-group">
+                        <span class="input-icon">👤</span>
+                        <input type="text" 
+                               class="glass-input with-icon" 
+                               id="user_id" 
+                               placeholder="Enter your ID"
+                               autocomplete="off"
+                               required>
+                    </div>
+                    <div id="idError" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" 
+                               class="glass-input with-icon" 
+                               id="password" 
+                               placeholder="Enter your password"
+                               required>
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            👁️
+                        </button>
+                    </div>
+                    <div id="passwordError" class="error-message"></div>
+                </div>
+
+               <div class="remember-me" style="margin: 3px 0 5px !important; display: flex !important; align-items: center !important; gap: 4px !important;">
+    <input type="checkbox" id="remember" style="width: 14px !important; height: 14px !important; accent-color: #FFD700 !important; margin: 0 !important;">
+    <label for="remember" style="color: #000000 !important; font-size: 11px !important; font-weight: 400 !important; line-height: 1.3 !important;">Remember me for 8 hours</label>
+</div>
+
+                <!-- Forgot Password Link - CHANGES BASED ON TAB -->
+                <div class="forgot-password" id="forgotLink">
+                    {% if user_type == 'employee' %}
+                        <a href="/forgot-password">Forgot Password?</a>
+                    {% else %}
+                        <a href="/admin/forgot-password">Forgot Password?</a>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="glass-btn primary" style="width: 100%;" id="loginBtn">
+                    <span>Sign In</span>
+                </button>
+            </form>
+
+            <div id="messageContainer" class="login-footer" style="display: none;"></div>
+
+            <div class="login-footer">
+                <p>© 2024 Smart Attendance System. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal (Keep as is) -->
+    <div class="modal" id="forgotModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Reset Password</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please contact your administrator to reset your password.</p>
+                <p>Admin can reset your password to default (Employee ID).</p>
+                <div class="form-group">
+                    <label class="form-label">Contact Admin</label>
+                    <div class="glass-input" style="padding: 14px;">
+                        admin@company.com
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUserType = '{{ user_type }}';
+
+        function switchTab(type) {
+            currentUserType = type;
+            document.getElementById('idLabel').textContent = type === 'employee' ? 'Employee ID' : 'Admin ID';
+            
+            // Update forgot password link based on tab
+            const forgotLink = document.getElementById('forgotLink');
+            if (type === 'employee') {
+                forgotLink.innerHTML = '<a href="/forgot-password">Forgot Password?</a>';
+            } else {
+                forgotLink.innerHTML = '<a href="/admin/forgot-password">Forgot Password?</a>';
+            }
+            
+            // Update URL without reload
+            const url = new URL(window.location);
+            if (type === 'admin') {
+                url.pathname = '/admin/login';
+            } else {
+                url.pathname = '/login';
+            }
+            window.history.pushState({}, '', url);
+            
+            // Update active tab
+            document.querySelectorAll('.login-tab').forEach((tab, index) => {
+                if ((type === 'employee' && index === 0) || (type === 'admin' && index === 1)) {
+                    tab.classList.add('active');
+                } else {
+                    tab.classList.remove('active');
+                }
+            });
+        }
+
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const userId = document.getElementById('user_id').value.trim();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            // Clear previous errors
+            document.getElementById('idError').textContent = '';
+            document.getElementById('passwordError').textContent = '';
+            
+            if (!userId) {
+                document.getElementById('idError').textContent = 'Please enter your ID';
+                return;
+            }
+            
+            if (!password) {
+                document.getElementById('passwordError').textContent = 'Please enter your password';
+                return;
+            }
+            
+            // Show loading
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span>Signing in...</span>';
+            
+            try {
+                const endpoint = currentUserType === 'employee' ? '/login' : '/admin/login';
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        [currentUserType === 'employee' ? 'employee_id' : 'admin_id']: userId,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 1000);
+                } else {
+                    document.getElementById('passwordError').textContent = data.message;
+                    loginBtn.disabled = false;
+                    loginBtn.innerHTML = '<span>Sign In</span>';
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                document.getElementById('passwordError').textContent = 'Network error. Please try again.';
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Sign In</span>';
+            }
+        }
+
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            container.style.display = 'block';
+            container.innerHTML = message;
+            container.className = `login-footer ${type}`;
+            
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 3000);
+        }
+
+        function showForgotPassword() {
+            document.getElementById('forgotModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('forgotModal').classList.remove('active');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('forgotModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin(e);
+            }
+        });
+    </script>
+</body>
+</html>

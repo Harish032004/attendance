@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Profile - Smart Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+   <style>
+    /* ==================== PROFILE PAGE STYLES ==================== */
+/* Matching your brand colors: #0F9D8A (Teal), #7ED957 (Fresh Green) */
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: clamp(20px, 4vw, 40px);
+    margin-bottom: clamp(25px, 5vw, 40px);
+    flex-wrap: wrap;
+    background: var(--white);
+    padding: clamp(20px, 4vw, 30px);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(15,157,138,0.15);
+}
+
+.profile-avatar {
+    width: clamp(80px, 15vw, 120px);
+    height: clamp(80px, 15vw, 120px);
+    background: var(--primary-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(32px, 8vw, 48px);
+    color: var(--white);
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(15,157,138,0.3);
+    border: 3px solid var(--white);
+    transition: var(--transition);
+}
+
+.profile-avatar:hover {
+    transform: scale(1.05) rotate(5deg);
+    box-shadow: 0 15px 40px rgba(15,157,138,0.4);
+}
+
+.profile-info {
+    flex: 1;
+    min-width: 250px;
+}
+
+.profile-name {
+    font-size: clamp(24px, 5vw, 32px);
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 5px;
+    line-height: 1.2;
+}
+
+.profile-id {
+    color: var(--text-light);
+    font-size: clamp(14px, 2vw, 16px);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.profile-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(15,157,138,0.1);
+    border-radius: 30px;
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid rgba(15,157,138,0.2);
+}
+
+/* Active Status Indicator */
+.active-status {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    animation: pulse 2s infinite;
+}
+
+.status-active {
+    background: #28a745;
+    box-shadow: 0 0 15px #28a745;
+}
+
+.status-inactive {
+    background: #dc3545;
+    box-shadow: 0 0 15px #dc3545;
+}
+
+.status-onbreak {
+    background: #ffc107;
+    box-shadow: 0 0 15px #ffc107;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Info Grid */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: clamp(15px, 3vw, 20px);
+    margin-bottom: clamp(20px, 4vw, 30px);
+}
+
+.info-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    padding: clamp(20px, 4vw, 25px);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(15,157,138,0.15);
+    transition: var(--transition);
+}
+
+.info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
+}
+
+.info-card h3 {
+    color: var(--primary-dark);
+    font-size: clamp(16px, 3vw, 18px);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(15,157,138,0.15);
+}
+
+.info-card h3 i {
+    color: var(--primary);
+    font-size: 1.2em;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(15,157,138,0.1);
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.info-row:last-child {
+    border-bottom: none;
+}
+
+.info-label {
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.info-label i {
+    color: var(--primary);
+    width: 18px;
+    font-size: 14px;
+}
+
+.info-value {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 15px;
+    background: rgba(15,157,138,0.05);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(15,157,138,0.15);
+}
+
+/* Stats Mini Grid */
+.stats-mini-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.stat-mini {
+    text-align: center;
+    padding: 15px 10px;
+    background: var(--primary-light);
+    border-radius: 16px;
+    transition: var(--transition);
+    border: 1px solid rgba(15,157,138,0.15);
+}
+
+.stat-mini:hover {
+    transform: translateY(-3px);
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    border-color: var(--primary);
+}
+
+.stat-mini-value {
+    font-size: clamp(20px, 4vw, 24px);
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.2;
+    margin-bottom: 5px;
+}
+
+.stat-mini-label {
+    color: var(--text-light);
+    font-size: clamp(11px, 2vw, 12px);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: clamp(10px, 2vw, 15px);
+    margin-top: 30px;
+    flex-wrap: wrap;
+}
+
+.action-buttons .glass-btn {
+    flex: 1;
+    min-width: 140px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+.action-buttons .glass-btn i {
+    font-size: 1.1rem;
+}
+
+.action-buttons .glass-btn.primary {
+    background: var(--primary-gradient);
+    color: var(--white);
+}
+
+.action-buttons .glass-btn.secondary {
+    background: var(--white);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.action-buttons .glass-btn.secondary:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .profile-header {
+        padding: 20px;
+    }
+    
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile Landscape (480px - 768px) */
+@media (max-width: 768px) {
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 15px;
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        font-size: 40px;
+        margin: 0 auto;
+    }
+    
+    .profile-info {
+        text-align: center;
+    }
+    
+    .profile-id {
+        justify-content: center;
+    }
+    
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .info-card {
+        padding: 18px;
+    }
+    
+    .stats-mini-grid {
+        gap: 10px;
+    }
+    
+    .stat-mini {
+        padding: 12px 5px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .action-buttons .glass-btn {
+        width: 100%;
+    }
+}
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+    .profile-header {
+        padding: 15px;
+    }
+    
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+    }
+    
+    .profile-name {
+        font-size: 22px;
+    }
+    
+    .profile-id {
+        font-size: 13px;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .profile-badge {
+        font-size: 12px;
+        padding: 4px 12px;
+    }
+    
+    .info-card {
+        padding: 15px;
+    }
+    
+    .info-card h3 {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+    
+    .info-row {
+        padding: 10px 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+    
+    .info-label {
+        font-size: 13px;
+    }
+    
+    .info-value {
+        font-size: 14px;
+        padding: 3px 10px;
+        margin-left: 25px;
+    }
+    
+    .stats-mini-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    .stat-mini {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 15px;
+        text-align: left;
+    }
+    
+    .stat-mini-value {
+        font-size: 18px;
+        margin-bottom: 0;
+    }
+    
+    .stat-mini-label {
+        font-size: 12px;
+    }
+    
+    .action-buttons {
+        margin-top: 20px;
+    }
+    
+    .action-buttons .glass-btn {
+        padding: 10px;
+        font-size: 14px;
+    }
+}
+
+/* Small Mobile (320px and below) */
+@media (max-width: 360px) {
+    .profile-header {
+        padding: 12px;
+    }
+    
+    .profile-avatar {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
+    }
+    
+    .profile-name {
+        font-size: 20px;
+    }
+    
+    .info-card {
+        padding: 12px;
+    }
+    
+    .info-row {
+        padding: 8px 0;
+    }
+    
+    .info-label i {
+        width: 16px;
+        font-size: 12px;
+    }
+    
+    .info-value {
+        font-size: 13px;
+        padding: 2px 8px;
+        margin-left: 20px;
+    }
+    
+    .stat-mini {
+        padding: 8px 12px;
+    }
+    
+    .stat-mini-value {
+        font-size: 16px;
+    }
+    
+    .stat-mini-label {
+        font-size: 11px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .profile-avatar,
+    .info-card,
+    .stat-mini,
+    .glass-btn {
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .glass-btn {
+        min-height: 44px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .profile-header {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .profile-avatar {
+        background: #f0f0f0;
+        color: black;
+        box-shadow: none;
+        border: 2px solid #ddd;
+    }
+    
+    .action-buttons {
+        display: none;
+    }
+    
+    .stat-mini {
+        break-inside: avoid;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    .profile-header,
+    .info-card {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(10px);
+    }
+    
+    .profile-name {
+        color: var(--white);
+    }
+    
+    .info-value {
+        background: rgba(255,255,255,0.1);
+    }
+}
+
+/* Loading skeleton animation */
+.profile-loading {
+    animation: shimmer 1.5s infinite linear;
+    background: linear-gradient(
+        90deg,
+        var(--white) 0%,
+        var(--primary-light) 50%,
+        var(--white) 100%
+    );
+    background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+   </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="/employee/dashboard" class="nav-logo">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo">
+                <span>Attendance System</span>
+            </a>
+            <div class="nav-menu">
+                <a href="/employee/dashboard" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/employee/history" class="nav-link">
+                    <span>📅</span> History
+                </a>
+                <a href="/employee/profile" class="nav-link active">
+                    <span>👤</span> Profile
+                </a>
+                <a href="/logout" class="nav-link">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">My Profile 👤</h1>
+            <p class="welcome-subtitle">View and manage your profile information</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error" style="background: rgba(244, 67, 54, 0.1); color: #f44336; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if employee %}
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ employee['Employee Name'][0] if employee['Employee Name'] else 'U' }}
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name" style="color: #4caf50;">{{ employee['Employee Name'] }}</h1>
+                <div class="profile-id">Employee ID: {{ employee['Employee ID'] }}</div>
+                <div class="profile-badge">{{ employee['Department'] if employee['Department'] else 'Not Assigned' }}</div>
+            </div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="info-grid">
+            <!-- Personal Information -->
+            <div class="info-card">
+                <h3>
+                    <span>📋</span> Personal Information
+                </h3>
+                <div class="info-row">
+                    <span class="info-label">Email</span>
+                    <span class="info-value">{{ employee['Email'] if employee['Email'] else 'Not provided' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Department</span>
+                    <span class="info-value">{{ employee['Department'] if employee['Department'] else 'Not assigned' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Join Date</span>
+                    <span class="info-value">{{ employee['Join Date'] if employee['Join Date'] else 'Not recorded' }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">
+                        <span class="active-status {% if employee.get('Is Active') == 'Yes' %}status-active{% else %}status-inactive{% endif %}"></span>
+                        {{ employee.get('Is Active', 'Active') }}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Role</span>
+                    <span class="info-value">{{ employee.get('Role', 'Employee') }}</span>
+                </div>
+            </div>
+
+     <!-- Attendance Statistics - Like Dashboard -->
+<div class="info-card">
+    <h3>
+        <span>📊</span> This Month ({{ current_month }})
+    </h3>
+    
+    <!-- Stats Grid like dashboard -->
+    <div class="stats-mini-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-mini">
+            <div class="stat-mini-value" style="color: #4caf50;">{{ stats.present }}</div>
+            <div class="stat-mini-label">Present (WFO)</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value" style="color: #2196f3;">{{ stats.wfh }}</div>
+            <div class="stat-mini-label">Work From Home</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value" style="color: #ff9800;">{{ stats.leave }}</div>
+            <div class="stat-mini-label">Leave</div>
+        </div>
+    </div>
+    
+    <div class="info-row" style="margin-top: 15px;">
+        <span class="info-label">Total Days This Month</span>
+        <span class="info-value">{{ stats.total }}</span>
+    </div>
+</div>
+
+<!-- All-time Statistics -->
+<div class="info-card">
+    <h3>
+        <span>🏆</span> All-Time Summary
+    </h3>
+    
+    <div class="stats-mini-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-mini">
+            <div class="stat-mini-value" style="color: #4caf50;">{{ all_time_present }}</div>
+            <div class="stat-mini-label">Total Present</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value" style="color: #2196f3;">{{ all_time_wfh }}</div>
+            <div class="stat-mini-label">Total WFH</div>
+        </div>
+        <div class="stat-mini">
+            <div class="stat-mini-value" style="color: #ff9800;">{{ all_time_leave }}</div>
+            <div class="stat-mini-label">Total Leave</div>
+        </div>
+    </div>
+    
+    <div class="info-row" style="margin-top: 15px;">
+        <span class="info-label">Work Logs Submitted</span>
+        <span class="info-value">{{ work_logs_count }}</span>
+    </div>
+</div>
+
+            <!-- Account Information -->
+            <div class="info-card">
+                <h3>
+                    <span>⚙️</span> Account Details
+                </h3>
+                <div class="info-row">
+                    <span class="info-label">Last Login</span>
+                    <span class="info-value">
+                        {% if employee.get('Last Login') %}
+                            {{ employee['Last Login'][:10] if employee['Last Login'] else 'Never' }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Account Created</span>
+                    <span class="info-value">{{ employee.get('Join Date', 'Unknown') }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Employee ID</span>
+                    <span class="info-value">{{ employee['Employee ID'] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="/change-password" class="glass-btn primary">
+                <span>🔒</span> Change Password
+            </a>
+            <a href="/employee/history" class="glass-btn">
+                <span>📅</span> View History
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function toggleMenu() {
+            document.querySelector('.nav-menu').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

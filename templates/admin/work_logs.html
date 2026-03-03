@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Logs - Smart Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .work-log-description {
+            max-width: 400px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+    <style>
+   /* ==================== SIMPLE NAVBAR - DESKTOP & MOBILE ==================== */
+.nav-bar {
+    background: #FFFFFF;
+    border-bottom: 2px solid #0F9D8A;
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(15,157,138,0.15);
+    width: 100%;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 70px;
+    position: relative;
+}
+
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #0F9D8A;
+    text-decoration: none;
+    white-space: nowrap;
+    z-index: 1001;
+}
+
+.nav-logo img {
+    height: 40px;
+    width: auto;
+}
+
+.nav-logo span {
+    color: #0F9D8A;
+}
+
+/* Desktop Menu */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.nav-link {
+    color: #6c757d;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    background: #E8F8F5;
+    color: #0F9D8A;
+}
+
+.nav-link.active {
+    background: linear-gradient(135deg, #0F9D8A, #7ED957);
+    color: white;
+}
+
+.nav-link span {
+    font-size: 14px;
+}
+
+/* Logout button */
+.nav-link:last-child {
+    background: rgba(220,53,69,0.1);
+    color: #dc3545;
+    border: 1px solid rgba(220,53,69,0.2);
+}
+
+.nav-link:last-child:hover {
+    background: #dc3545;
+    color: white;
+}
+
+/* Menu Toggle Button - Hidden on Desktop */
+.menu-toggle {
+    display: none;
+    background: #E8F8F5;
+    border: none;
+    color: #0F9D8A;
+    font-size: 24px;
+    cursor: pointer;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.menu-toggle:hover {
+    background: #0F9D8A;
+    color: white;
+}
+
+/* ==================== MOBILE STYLES ==================== */
+@media (max-width: 768px) {
+    .nav-container {
+        height: 60px;
+        padding: 0 15px;
+    }
+    
+    .nav-logo img {
+        height: 32px;
+    }
+    
+    .nav-logo span {
+        font-size: 1rem;
+    }
+    
+    /* Show hamburger button */
+    .menu-toggle {
+        display: flex;
+    }
+    
+    /* Hide desktop menu by default */
+    .nav-menu {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: #FFFFFF;
+        flex-direction: column;
+        padding: 15px;
+        gap: 8px;
+        border-bottom: 3px solid #0F9D8A;
+        box-shadow: 0 10px 20px rgba(15,157,138,0.2);
+        width: 100%;
+        z-index: 1000;
+        max-height: calc(100vh - 60px);
+        overflow-y: auto;
+    }
+    
+    /* Show menu when active */
+    .nav-menu.show {
+        display: flex;
+    }
+    
+    /* Mobile menu items */
+    .nav-menu .nav-link {
+        width: 100%;
+        padding: 14px 16px;
+        font-size: 15px;
+        justify-content: flex-start;
+        border-radius: 8px;
+        background: #F8F9FA;
+        border: 1px solid rgba(15,157,138,0.1);
+        margin: 0;
+    }
+    
+    .nav-menu .nav-link span {
+        font-size: 18px;
+        min-width: 30px;
+    }
+    
+    .nav-menu .nav-link.active {
+        background: linear-gradient(135deg, #0F9D8A, #7ED957);
+        color: white;
+        border: none;
+    }
+    
+    /* Reset logout for mobile */
+    .nav-menu .nav-link:last-child {
+        background: rgba(220,53,69,0.1);
+        color: #dc3545;
+    }
+    
+    .nav-menu .nav-link:last-child:hover {
+        background: #dc3545;
+        color: white;
+    }
+    
+    /* Animation */
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .nav-menu.show {
+        animation: slideDown 0.3s ease;
+    }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+    .nav-container {
+        height: 55px;
+    }
+    
+    .nav-logo img {
+        height: 28px;
+    }
+    
+    .nav-logo span {
+        display: none;
+    }
+    
+    .menu-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 22px;
+    }
+    
+    .nav-menu {
+        top: 55px;
+    }
+}
+ </style>
+ <style>
+    /* static/css/attendance.css */
+/* Attendance View Styles - Matching Admin Dashboard Theme */
+
+:root {
+    --primary: #0F9D8A;
+    --secondary: #7ED957;
+    --primary-dark: #0B6E63;
+    --primary-light: #E8F8F5;
+    --white: #FFFFFF;
+    --primary-gradient: linear-gradient(135deg, #0F9D8A, #7ED957);
+    --soft-gradient: linear-gradient(135deg, #1FAF9C, #9BE15D);
+    --text-dark: #2C3E50;
+    --text-light: #6c757d;
+    --text-muted: #95a5a6;
+    --shadow-sm: 0 4px 12px rgba(15,157,138,0.15);
+    --shadow-md: 0 6px 18px rgba(15,157,138,0.25);
+    --shadow-lg: 0 8px 24px rgba(15,157,138,0.35);
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --transition: all 0.3s ease;
+}
+
+/* Page Background */
+body {
+    background: #E8F8F5;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Main Container */
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Welcome Title */
+.welcome-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--primary);
+}
+
+/* Filters Bar */
+.filters-bar {
+    background: var(--white);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 25px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--primary-light);
+    padding: 5px 10px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(15,157,138,0.2);
+}
+
+.date-range span {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.glass-input, .glass-select {
+    background: var(--white);
+    border: 2px solid #FFD700;
+    border-radius: var(--radius-sm);
+    padding: 10px 15px;
+    color: var(--text-dark);
+    font-size: 14px;
+    transition: var(--transition);
+    min-width: 150px;
+}
+
+.glass-input:focus, .glass-select:focus {
+    outline: none;
+    border-color: #FFA500;
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.2);
+}
+
+.glass-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230F9D8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    appearance: none;
+}
+
+/* Buttons */
+.glass-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--white);
+    color: var(--primary);
+    border: 1px solid rgba(15,157,138,0.3);
+}
+
+.glass-btn.primary {
+    background: var(--primary-gradient);
+    color: var(--white);
+    box-shadow: 0 4px 12px rgba(15,157,138,0.3);
+    border: none;
+}
+
+.glass-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(15,157,138,0.4);
+}
+
+.glass-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Table Container */
+.glass-table-container {
+    background: var(--white);
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-lg);
+    padding: 0;
+    box-shadow: var(--shadow-sm);
+    overflow-x: auto;
+    margin: 20px 0;
+}
+
+.glass-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1000px;
+}
+
+.glass-table th {
+    background: var(--primary-gradient);
+    color: var(--white);
+    padding: 15px;
+    font-weight: 600;
+    font-size: 14px;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.glass-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(15,157,138,0.2);
+    color: var(--text-dark);
+    font-size: 14px;
+}
+
+.glass-table tbody tr:hover {
+    background: var(--primary-light);
+}
+
+/* Attendance Type Badges */
+.attendance-type {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: center;
+    min-width: 80px;
+}
+
+.attendance-type.wfo {
+    background: rgba(15,157,138,0.15);
+    color: var(--primary);
+    border: 1px solid rgba(15,157,138,0.3);
+}
+
+.attendance-type.wfh {
+    background: rgba(126,217,87,0.15);
+    color: var(--secondary);
+    border: 1px solid rgba(126,217,87,0.3);
+}
+
+.attendance-type.leave {
+    background: rgba(255,193,7,0.15);
+    color: #ffc107;
+    border: 1px solid rgba(255,193,7,0.3);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-light);
+    font-size: 16px;
+}
+
+.loading-spinner::after {
+    content: '';
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* No Data State */
+.no-data {
+    text-align: center;
+    padding: 40px !important;
+    color: var(--text-light);
+    font-size: 14px;
+    background: var(--primary-light);
+    border-radius: 12px;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+/* Tablet (768px - 1024px) */
+@media (max-width: 1024px) {
+    .filters-bar {
+        padding: 15px;
+    }
+    
+    .glass-input, .glass-select {
+        min-width: 130px;
+        padding: 8px 12px;
+    }
+    
+    .date-range {
+        width: 100%;
+    }
+    
+    .date-range input {
+        flex: 1;
+    }
+}
+
+/* Mobile Landscape (480px - 768px) */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .welcome-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .date-range {
+        width: 100%;
+    }
+    
+    .glass-input, .glass-select {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .glass-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .glass-table th,
+    .glass-table td {
+        padding: 10px;
+        font-size: 13px;
+    }
+}
+
+/* Mobile Portrait (< 480px) */
+@media (max-width: 480px) {
+    .container {
+        padding: 12px;
+    }
+    
+    .welcome-title {
+        font-size: 22px;
+    }
+    
+    .filters-bar {
+        padding: 12px;
+    }
+    
+    .date-range {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    
+    .date-range span {
+        text-align: center;
+    }
+    
+    .glass-table th,
+    .glass-table td {
+        padding: 8px;
+        font-size: 12px;
+    }
+    
+    .attendance-type {
+        min-width: 60px;
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+}
+
+/* Small Mobile (< 360px) */
+@media (max-width: 360px) {
+    .welcome-title {
+        font-size: 20px;
+    }
+    
+    .glass-table th,
+    .glass-table td {
+        padding: 6px;
+        font-size: 11px;
+    }
+}
+
+/* ==================== EXPORT BUTTON SPECIAL ==================== */
+.glass-btn:last-child {
+    background: var(--white);
+    color: var(--primary);
+    border: 2px solid #FFD700;
+}
+
+.glass-btn:last-child:hover {
+    background: var(--primary-light);
+    transform: translateY(-2px);
+}
+
+/* ==================== FILTER ICONS ==================== */
+.glass-btn span {
+    font-size: 16px;
+}
+
+/* ==================== SCROLLBAR STYLING ==================== */
+.glass-table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.glass-table-container::-webkit-scrollbar-track {
+    background: var(--primary-light);
+    border-radius: 10px;
+}
+
+.glass-table-container::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+.glass-table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* ==================== PRINT STYLES ==================== */
+@media print {
+    .filters-bar,
+    .glass-btn {
+        display: none;
+    }
+    
+    .glass-table-container {
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .glass-table th {
+        background: #f0f0f0;
+        color: black;
+    }
+}
+
+/* ==================== ANIMATIONS ==================== */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.glass-table tbody tr {
+    animation: fadeIn 0.3s ease;
+}
+ </style>
+ <style>
+    /* ==================== FILTER DROPDOWN TEXT FIX ==================== */
+
+/* Fix for select dropdown text */
+.glass-select {
+    background: #FFFFFF !important;
+    border: 2px solid #FFD700 !important;
+    border-radius: 8px !important;
+    padding: 12px 15px !important;
+    color: #2C3E50 !important; /* Dark color for visibility */
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230F9D8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 12px center !important;
+    background-size: 16px !important;
+    min-width: 160px !important;
+}
+
+/* Fix for option text in dropdown */
+.glass-select option {
+    background: #FFFFFF !important;
+    color: #2C3E50 !important; /* Dark text for options */
+    padding: 12px !important;
+    font-size: 14px !important;
+    font-weight: 400 !important;
+}
+
+/* Fix for when dropdown is open */
+.glass-select:focus {
+    outline: none !important;
+    border-color: #FFA500 !important;
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.2) !important;
+}
+
+/* Fix for placeholder/first option */
+.glass-select option:first-child {
+    color: #6c757d !important; /* Gray for "All Employees" text */
+    font-style: normal !important;
+}
+
+/* Fix for disabled options if any */
+.glass-select option:disabled {
+    color: #95a5a6 !important;
+    background: #f8f9fa !important;
+}
+
+/* Date inputs fix */
+.glass-input {
+    background: #FFFFFF !important;
+    border: 2px solid #FFD700 !important;
+    border-radius: 8px !important;
+    padding: 12px 15px !important;
+    color: #2C3E50 !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+}
+
+.glass-input:focus {
+    outline: none !important;
+    border-color: #FFA500 !important;
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.2) !important;
+}
+
+/* Date input placeholder fix */
+.glass-input::-webkit-datetime-edit {
+    color: #2C3E50 !important;
+}
+
+.glass-input::-webkit-datetime-edit-fields-wrapper {
+    color: #2C3E50 !important;
+}
+
+.glass-input::-webkit-calendar-picker-indicator {
+    filter: invert(0.5) sepia(1) hue-rotate(130deg) saturate(5) !important;
+    cursor: pointer !important;
+}
+
+/* Mobile responsive for filters */
+@media (max-width: 768px) {
+    .glass-select,
+    .glass-input {
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+    
+    .date-range {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        width: 100% !important;
+    }
+    
+    .date-range span {
+        text-align: center !important;
+        padding: 5px !important;
+        color: #0F9D8A !important;
+        font-weight: 600 !important;
+    }
+}
+
+/* Fix for Firefox */
+@-moz-document url-prefix() {
+    .glass-select {
+        text-indent: 0px !important;
+        padding: 12px 15px !important;
+    }
+}
+
+/* Fix for IE/Edge */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+    .glass-select {
+        padding: 12px 15px !important;
+        background-image: none !important;
+    }
+}
+ </style>
+</head>
+<body>
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="/admin/dashboard" class="nav-logo">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo">
+                <span>Admin Panel</span>
+            </a>
+            <div class="nav-menu">
+                <a href="/admin/dashboard" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/admin/employees" class="nav-link">
+                    <span>👥</span> Employees
+                </a>
+                <a href="/admin/attendance" class="nav-link">
+                    <span>📋</span> Attendance
+                </a>
+                <a href="/admin/work-logs" class="nav-link active">
+                    <span>📝</span> Work Logs
+                </a>
+                <a href="/admin/reports" class="nav-link">
+                    <span>📈</span> Reports
+                </a>
+                <a href="/admin/logs" class="nav-link">
+                    <span>📜</span> Audit Logs
+                </a>
+                <a href="/admin/settings" class="nav-link">
+                    <span>⚙️</span> Settings
+                </a>
+                <a href="/logout" class="nav-link">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 class="welcome-title">Work Logs</h1>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="date-range">
+                <input type="date" class="glass-input" id="fromDate">
+                <span>to</span>
+                <input type="date" class="glass-input" id="toDate">
+            </div>
+            <select class="glass-select" id="employeeFilter">
+                <option value="">All Employees</option>
+            </select>
+            <select class="glass-select" id="deptFilter">
+                <option value="">All Departments</option>
+            </select>
+            <button class="glass-btn primary" onclick="loadWorkLogs()">
+                <span>🔍</span> Apply Filters
+            </button>
+            <button class="glass-btn" onclick="exportWorkLogs()">
+                <span>📥</span> Export
+            </button>
+        </div>
+
+        <!-- Work Logs Table -->
+        <div class="glass-table-container">
+            <table class="glass-table" id="workLogsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee ID</th>
+                        <th>Employee Name</th>
+                        <th>Department</th>
+                        <th>Work Description</th>
+                        <th>Hours</th>
+                        <th>Submitted At</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody id="workLogsBody">
+                    <tr>
+                        <td colspan="8" class="loading-spinner">Loading work logs...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script>
+        async function loadWorkLogs() {
+            const fromDate = document.getElementById('fromDate').value;
+            const toDate = document.getElementById('toDate').value;
+            const employeeId = document.getElementById('employeeFilter').value;
+            const dept = document.getElementById('deptFilter').value;
+            
+            let url = '/api/admin/work-logs?';
+            if (fromDate) url += `from=${fromDate}&`;
+            if (toDate) url += `to=${toDate}&`;
+            if (employeeId) url += `employee=${employeeId}&`;
+            if (dept) url += `dept=${dept}&`;
+            
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayWorkLogs(data.logs);
+                }
+            } catch (error) {
+                console.error('Error loading work logs:', error);
+            }
+        }
+
+        function displayWorkLogs(logs) {
+            const tbody = document.getElementById('workLogsBody');
+            
+            if (logs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" class="no-data">No work logs found</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            logs.forEach(log => {
+                html += `
+                    <tr>
+                        <td>${log.date}</td>
+                        <td>${log.employee_id}</td>
+                        <td>${log.employee_name}</td>
+                        <td>${log.department || '-'}</td>
+                        <td class="work-log-description" title="${log.description.replace(/"/g, '&quot;')}">
+                            ${log.description}
+                        </td>
+                        <td>${log.hours} hrs</td>
+                        <td>${new Date(log.submitted_at).toLocaleString()}</td>
+                        <td>${log.ip || '-'}</td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        async function loadFilters() {
+            // Set default dates
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            document.getElementById('fromDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+            document.getElementById('toDate').value = today.toISOString().split('T')[0];
+            
+            // Load employees for filter
+            try {
+                const response = await fetch('/api/admin/employee-list');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const empFilter = document.getElementById('employeeFilter');
+                    data.employees.forEach(emp => {
+                        empFilter.innerHTML += `<option value="${emp.id}">${emp.name} (${emp.id})</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading employees:', error);
+            }
+            
+            // Load departments
+            try {
+                const response = await fetch('/api/admin/departments');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const deptFilter = document.getElementById('deptFilter');
+                    data.departments.forEach(dept => {
+                        deptFilter.innerHTML += `<option value="${dept}">${dept}</option>`;
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading departments:', error);
+            }
+            
+            // Initial load
+            loadWorkLogs();
+        }
+
+    async function exportWorkLogs() {
+    try {
+        // Get filter values
+        const fromDate = document.getElementById('fromDate')?.value;
+        const toDate = document.getElementById('toDate')?.value;
+        const employeeId = document.getElementById('employeeFilter')?.value;
+        const dept = document.getElementById('deptFilter')?.value;
+        
+        // Validate date range
+        if (!fromDate || !toDate) {
+            showNotification('Please select both from and to dates', 'warning');
+            return;
+        }
+        
+        // Show loading state
+        const exportBtn = event.currentTarget;
+        const originalText = exportBtn.innerHTML;
+        exportBtn.innerHTML = '<span>⏳</span> Exporting...';
+        exportBtn.disabled = true;
+        
+        console.log('Exporting work logs with filters:', { fromDate, toDate, employeeId, dept });
+        
+        // Make export request
+        const response = await fetch('/api/admin/export-worklogs', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                from_date: fromDate,
+                to_date: toDate,
+                employee_id: employeeId || '',
+                dept: dept || ''
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Export failed');
+        }
+        
+        // Get the blob from response
+        const blob = await response.blob();
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `worklogs_report_${new Date().toISOString().slice(0,19).replace(/:/g, '')}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        // Show success message
+        showNotification('✅ Work logs exported successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Export error:', error);
+        showNotification('❌ Failed to export: ' + error.message, 'error');
+    } finally {
+        // Restore button
+        const exportBtn = document.querySelector('.glass-btn:last-child');
+        if (exportBtn) {
+            exportBtn.innerHTML = '<span>📥</span> Export';
+            exportBtn.disabled = false;
+        }
+    }
+}
+
+// Helper function to show notifications
+function showNotification(message, type) {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.export-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = `export-notification ${type}`;
+    
+    let bgColor, icon;
+    if (type === 'success') {
+        bgColor = '#28a745';
+        icon = '✅';
+    } else if (type === 'error') {
+        bgColor = '#dc3545';
+        icon = '❌';
+    } else if (type === 'warning') {
+        bgColor = '#ffc107';
+        icon = '⚠️';
+        notification.style.color = '#000';
+    } else {
+        bgColor = '#0F9D8A';
+        icon = 'ℹ️';
+    }
+    
+    notification.innerHTML = `
+        <span style="font-size: 18px;">${icon}</span>
+        <span>${message}</span>
+    `;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${bgColor};
+        color: white;
+        border-radius: 8px;
+        font-weight: 500;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 300px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Add animation styles if not already present
+if (!document.getElementById('export-animation-styles')) {
+    const style = document.createElement('style');
+    style.id = 'export-animation-styles';
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(100%);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Helper function to show notifications (if not already defined)
+function showNotification(message, type) {
+    // Remove existing notification
+    const existingNotification = document.querySelector('.export-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = `export-notification ${type}`;
+    
+    // Set colors based on type
+    let bgColor, icon;
+    if (type === 'success') {
+        bgColor = '#28a745';
+        icon = '✅';
+    } else if (type === 'error') {
+        bgColor = '#dc3545';
+        icon = '❌';
+    } else if (type === 'warning') {
+        bgColor = '#ffc107';
+        icon = '⚠️';
+    } else {
+        bgColor = '#0F9D8A';
+        icon = 'ℹ️';
+    }
+    
+    notification.innerHTML = `
+        <span>${icon}</span>
+        <span>${message}</span>
+    `;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        background: ${bgColor};
+        color: white;
+        border-radius: 8px;
+        font-weight: 500;
+        z-index: 9999;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Add animation styles if not already present
+if (!document.getElementById('export-animation-styles')) {
+    const style = document.createElement('style');
+    style.id = 'export-animation-styles';
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+        // Initial load
+        loadFilters();
+    </script>
+</body>
+</html>

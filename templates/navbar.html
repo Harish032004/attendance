@@ -1,0 +1,142 @@
+<!-- templates/navbar.html -->
+<nav class="navbar">
+    <div class="nav-container">
+        <div class="nav-logo">
+            <a href="{{ url_for('employee_dashboard') }}">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo" style="height: 40px;">
+            </a>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <ul class="nav-links">
+                <li><a href="{{ url_for('employee_dashboard') }}" class="nav-link">Dashboard</a></li>
+                <li><a href="{{ url_for('attendance_history') }}" class="nav-link">History</a></li>
+                <li><a href="{{ url_for('work_log_page') }}" class="nav-link">Work Log</a></li>
+                <li><a href="{{ url_for('employee_profile') }}" class="nav-link">Profile</a></li>
+            </ul>
+        </div>
+        <div class="nav-user">
+            <span class="user-name">{{ session.get('employee_name', 'User') }}</span>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+        <div class="nav-toggle" id="navToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</nav>
+
+<style>
+.navbar {
+    background: white;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.nav-links {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 2rem;
+}
+.nav-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: all 0.3s;
+}
+.nav-link:hover {
+    background: #f0f0f0;
+    color: #007bff;
+}
+.nav-link.active {
+    background: #007bff;
+    color: white;
+}
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.user-name {
+    color: #666;
+    font-weight: 500;
+}
+.btn-logout {
+    padding: 0.5rem 1rem;
+    background: #dc3545;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+.btn-logout:hover {
+    background: #c82333;
+}
+.nav-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+}
+.nav-toggle span {
+    width: 25px;
+    height: 3px;
+    background: #333;
+    margin: 2px 0;
+    transition: all 0.3s;
+}
+
+@media (max-width: 768px) {
+    .nav-menu {
+        position: fixed;
+        left: -100%;
+        top: 70px;
+        width: 100%;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        transition: 0.3s;
+    }
+    .nav-menu.active {
+        left: 0;
+    }
+    .nav-links {
+        flex-direction: column;
+        padding: 2rem;
+    }
+    .nav-toggle {
+        display: flex;
+    }
+    .nav-user {
+        display: none;
+    }
+}
+</style>
+
+<script>
+document.getElementById('navToggle')?.addEventListener('click', function() {
+    document.getElementById('navMenu').classList.toggle('active');
+});
+
+// Highlight active link
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (link.getAttribute('href') === currentPath) {
+            link.classList.add('active');
+        }
+    });
+});
+</script>

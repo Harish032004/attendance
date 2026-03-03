@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance History - Smart Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* History page specific styles */
+        .history-filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 10px 20px;
+            color: var(--text-primary);
+            font-size: 14px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            min-width: 150px;
+        }
+
+        .filter-select option {
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+
+        .history-table-container {
+            background: var(--glass-bg);
+            border-radius: 24px;
+            padding: 20px;
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .history-table th {
+            text-align: left;
+            padding: 15px 10px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 14px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-table td {
+            padding: 15px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .history-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-present {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .type-wfh {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .type-leave {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+        }
+
+        .mode-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .mode-qr {
+            background: rgba(0, 172, 193, 0.2);
+            color: #00acc1;
+        }
+
+        .mode-manual {
+            background: rgba(123, 31, 162, 0.2);
+            color: #7b1fa2;
+        }
+
+        .mode-biometric {
+            background: rgba(46, 125, 50, 0.2);
+            color: #2e7d32;
+        }
+
+        .mode-wfo {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+
+        .mode-wfh {
+            background: rgba(33, 150, 243, 0.2);
+            color: #2196f3;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            background: var(--glass-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .pagination-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .pagination-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: var(--glass-bg);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .date-range {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        /* Fix for dropdown options */
+.filter-select {
+    background: rgba(30, 30, 40, 0.9);  /* Darker background for better visibility */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: white;  /* White text */
+    font-size: 14px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    min-width: 150px;
+}
+
+.filter-select option {
+    background: #1e1e28;  /* Solid dark background for options */
+    color: white;  /* White text */
+    padding: 10px;
+}
+
+.filter-select option:hover {
+    background: var(--primary-color);  /* Highlight on hover */
+}
+
+/* For Firefox */
+.filter-select option:checked {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* Fix for month filter not showing February records */
+/* Make sure the month values in HTML match exactly what's in database */
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="/employee/dashboard" class="nav-logo">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo">
+                <span>Attendance System</span>
+            </a>
+            <div class="nav-menu">
+                <a href="/employee/dashboard" class="nav-link">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/employee/history" class="nav-link active">
+                    <span>📅</span> History
+                </a>
+                <a href="/employee/profile" class="nav-link">
+                    <span>👤</span> Profile
+                </a>
+                <a href="/logout" class="nav-link">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Attendance History 📅</h1>
+            <p class="welcome-subtitle">Track your attendance records</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-error" style="background: rgba(244, 67, 54, 0.1); color: #f44336; padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+       <!-- Statistics Cards -->
+<div class="stats-row">
+    <div class="stat-item">
+        <div class="stat-value" style="color: #4caf50;">{{ total_present }}</div>
+        <div class="stat-label">Total Present</div>
+        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 5px;">
+            WFO: {{ total_wfo }} | WFH: {{ total_wfh }}
+        </div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" style="color: #2196f3;">{{ total_wfh }}</div>
+        <div class="stat-label">Work From Home</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value" style="color: #ff9800;">{{ total_leave }}</div>
+        <div class="stat-label">Leave</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-value">{{ records_count }}</div>
+        <div class="stat-label">Total Records</div>
+    </div>
+</div>
+
+    <!-- Filters -->
+<div class="history-filters">
+  <select class="filter-select" id="monthFilter" style="background: rgba(30, 30, 40, 0.95);">
+    <option value="">All Months</option>
+    <option value="January">January</option>
+    <option value="February">February</option>
+    <option value="March">March</option>
+    <option value="April">April</option>
+    <option value="May">May</option>
+    <option value="June">June</option>
+    <option value="July">July</option>
+    <option value="August">August</option>
+    <option value="September">September</option>
+    <option value="October">October</option>
+    <option value="November">November</option>
+    <option value="December">December</option>
+</select>
+
+    <select class="filter-select" id="yearFilter" style="background: rgba(30, 30, 40, 0.95);">
+        <option value="">All Years</option>
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+        <option value="2026">2026</option>
+    </select>
+
+    <select class="filter-select" id="typeFilter" style="background: rgba(30, 30, 40, 0.95);">
+        <option value="">All Types</option>
+        <option value="Present">Present (WFO)</option>
+        <option value="WFH">Work From Home</option>
+        <option value="Leave">Leave</option>
+    </select>
+
+    <button class="glass-btn primary" onclick="applyFilters()">Apply Filters</button>
+    <button class="glass-btn" onclick="resetFilters()">Reset</button>
+</div>
+<script>
+    // Add this function and call it
+function debugMonths() {
+    const rows = document.querySelectorAll('.attendance-row');
+    const months = new Set();
+    
+    rows.forEach(row => {
+        const month = row.dataset.month;
+        if (month) months.add(month);
+    });
+    
+    console.log('Months in data:', Array.from(months));
+    
+    // Check if February is in your data
+    if (!months.has('February')) {
+        console.log('⚠️ February not found in data. Actual months:', Array.from(months));
+    }
+}
+
+// Call it on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const rows = document.querySelectorAll('.attendance-row');
+    setupPagination(rows.length);
+    showPage(1);
+    debugMonths(); // Add this line
+});
+</script>
+        <!-- History Table -->
+        <div class="history-table-container">
+            <table class="history-table" id="historyTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Type</th>
+                        <th>Mode</th>
+                        <th>Week</th>
+                        <th>Month</th>
+                        <th>Year</th>
+                        <th>IP Address</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if attendance_records %}
+                        {% for record in attendance_records %}
+                        <tr class="attendance-row" 
+                            data-date="{{ record.date }}"
+                            data-month="{{ record.month }}"
+                            data-year="{{ record.year }}"
+                            data-type="{{ record.type }}">
+                            <td>{{ record.date }}</td>
+                            <td>{{ record.time }}</td>
+                            <td>
+                                <span class="type-badge type-{{ record.type|lower }}">
+                                    {{ record.type }}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="mode-badge mode-{{ record.mode|lower }}">
+                                    {{ record.mode }}
+                                </span>
+                            </td>
+                            <td style="color: black;">{{ record.week }}</td>
+                            <td>{{ record.month }}</td>
+                            <td>{{ record.year }}</td>
+                            <td>{{ record.ip_address }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="no-data">
+                                No attendance records found
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+ <script>
+    let currentPage = 1;
+    const rowsPerPage = 10;
+
+    function toggleMenu() {
+        document.querySelector('.nav-menu').classList.toggle('active');
+    }
+
+   function applyFilters() {
+    const month = document.getElementById('monthFilter').value;
+    const year = document.getElementById('yearFilter').value;
+    const type = document.getElementById('typeFilter').value;
+    
+    console.log('Filtering with:', { month, year, type });
+    
+    const rows = document.querySelectorAll('.attendance-row');
+    let visibleCount = 0;
+    
+    rows.forEach(row => {
+        const rowMonth = row.dataset.month ? row.dataset.month.trim() : '';
+        const rowYear = row.dataset.year ? row.dataset.year.trim() : '';
+        const rowType = row.dataset.type ? row.dataset.type.trim() : '';
+        const rowDate = row.dataset.date || '';
+        
+        let show = true;
+        
+        // MONTH FILTER - Check multiple formats
+        if (month && month !== '') {
+            const monthLower = month.toLowerCase();
+            const rowMonthLower = rowMonth.toLowerCase();
+            
+            // Check if month matches in various formats
+            const monthMatch = 
+                rowMonthLower === monthLower || // Exact match
+                rowMonthLower.includes(monthLower) || // Contains
+                rowMonthLower.includes(monthLower.substring(0, 3)) || // First 3 letters
+                (monthLower === 'february' && rowMonthLower.includes('feb')) || // Special for Feb
+                (monthLower === 'september' && rowMonthLower.includes('sep')) ||
+                (monthLower === 'october' && rowMonthLower.includes('oct')) ||
+                (monthLower === 'november' && rowMonthLower.includes('nov')) ||
+                (monthLower === 'december' && rowMonthLower.includes('dec'));
+            
+            if (!monthMatch) {
+                show = false;
+            }
+        }
+        
+        // YEAR FILTER
+        if (year && year !== '' && show) {
+            // Check if year appears in either year field or date
+            const yearMatch = 
+                rowYear === year ||
+                rowDate.includes(year) ||
+                rowMonth.includes(year);
+            
+            if (!yearMatch) {
+                show = false;
+            }
+        }
+        
+        // TYPE FILTER
+        if (type && type !== '' && show) {
+            const typeLower = type.toLowerCase();
+            const rowTypeLower = rowType.toLowerCase();
+            
+            const typeMatch = 
+                rowTypeLower === typeLower ||
+                (typeLower === 'present' && (rowTypeLower === 'wfo' || rowTypeLower === 'present')) ||
+                (typeLower === 'wfo' && (rowTypeLower === 'present' || rowTypeLower === 'wfo')) ||
+                rowTypeLower.includes(typeLower);
+            
+            if (!typeMatch) {
+                show = false;
+            }
+        }
+        
+        row.style.display = show ? '' : 'none';
+        if (show) visibleCount++;
+    });
+    
+    console.log('Visible rows after filter:', visibleCount);
+    
+    currentPage = 1;
+    setupPagination(visibleCount);
+    showPage(currentPage);
+}
+
+    function resetFilters() {
+        // Reset all dropdowns to empty
+        document.getElementById('monthFilter').value = '';
+        document.getElementById('yearFilter').value = '';
+        document.getElementById('typeFilter').value = '';
+        
+        // Show all rows
+        const rows = document.querySelectorAll('.attendance-row');
+        rows.forEach(row => row.style.display = '');
+        
+        // Reset pagination
+        setupPagination(rows.length);
+        showPage(1);
+        
+        console.log('Filters reset'); // Debug log
+    }
+
+    function setupPagination(totalRows) {
+        const pageCount = Math.ceil(totalRows / rowsPerPage);
+        const pagination = document.getElementById('pagination');
+        if (!pagination) return;
+        
+        pagination.innerHTML = '';
+        
+        if (pageCount <= 1) return;
+        
+        // Previous button
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'pagination-btn';
+        prevBtn.textContent = 'Previous';
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
+        };
+        pagination.appendChild(prevBtn);
+        
+        // Page buttons
+        for (let i = 1; i <= pageCount; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn';
+            btn.textContent = i;
+            btn.onclick = () => {
+                currentPage = i;
+                showPage(currentPage);
+            };
+            if (i === currentPage) btn.classList.add('active');
+            pagination.appendChild(btn);
+        }
+        
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'pagination-btn';
+        nextBtn.textContent = 'Next';
+        nextBtn.onclick = () => {
+            if (currentPage < pageCount) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        };
+        pagination.appendChild(nextBtn);
+    }
+
+    function showPage(page) {
+        const rows = Array.from(document.querySelectorAll('.attendance-row')).filter(row => 
+            row.style.display !== 'none'
+        );
+        
+        const start = (page - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        
+        rows.forEach((row, index) => {
+            row.style.display = index >= start && index < end ? '' : 'none';
+        });
+        
+        // Update active button
+        const paginationBtns = document.querySelectorAll('#pagination .pagination-btn');
+        paginationBtns.forEach((btn, index) => {
+            if (index > 0 && index < paginationBtns.length - 1) {
+                btn.classList.toggle('active', parseInt(btn.textContent) === page);
+            }
+        });
+    }
+
+    // Debug function to check what data is in your rows
+    function debugData() {
+        const rows = document.querySelectorAll('.attendance-row');
+        console.log('Total rows:', rows.length);
+        
+        const months = new Set();
+        const years = new Set();
+        const types = new Set();
+        
+        rows.forEach((row, index) => {
+            const month = row.dataset.month;
+            const year = row.dataset.year;
+            const type = row.dataset.type;
+            
+            console.log(`Row ${index + 1}:`, { month, year, type });
+            
+            if (month) months.add(month);
+            if (year) years.add(year);
+            if (type) types.add(type);
+        });
+        
+        console.log('Unique months:', Array.from(months));
+        console.log('Unique years:', Array.from(years));
+        console.log('Unique types:', Array.from(types));
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.attendance-row');
+        console.log('Page loaded with', rows.length, 'rows');
+        setupPagination(rows.length);
+        showPage(1);
+        
+        // Debug - check what data you have
+        debugData();
+    });
+</script>
+<style>
+    /* Fix for dropdown options */
+.filter-select {
+    background: #1e1e28 !important;  /* Solid dark background */
+    color: white !important;
+    border: 1px solid #333;
+}
+
+.filter-select option {
+    background: #1e1e28;
+    color: white;
+    padding: 10px;
+}
+
+.filter-select option:hover,
+.filter-select option:focus,
+.filter-select option:active,
+.filter-select option:checked {
+    background: #4a6cf7 !important;
+    color: white !important;
+}
+
+/* For Firefox */
+@-moz-document url-prefix() {
+    .filter-select option {
+        background-color: #1e1e28;
+        color: white;
+    }
+}
+</style>
+
+
+
+</body>
+</html>

@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - Smart Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/glassmorphic.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <div class="nav-container">
+            <a href="/employee/dashboard" class="nav-logo">
+                <img src="https://amplepro.in/wp-content/uploads/2024/06/ap-logo.png" alt="Logo">
+                <span>Attendance System</span>
+            </a>
+            <div class="nav-menu">
+                <a href="/employee/dashboard" class="nav-link active">
+                    <span>📊</span> Dashboard
+                </a>
+                <a href="/employee/history" class="nav-link">
+                    <span>📅</span> History
+                </a>
+                <a href="/employee/profile" class="nav-link">
+                    <span>👤</span> Profile
+                </a>
+                <a href="/logout" class="nav-link">
+                    <span>🚪</span> Logout
+                </a>
+            </div>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <h1 class="welcome-title">Welcome back, {{ employee_name }}! 👋</h1>
+            <p class="welcome-subtitle">{{ employee_id }} • {{ department }}</p>
+            <div class="wifi-status {% if wifi_status %}connected{% else %}disconnected{% endif %}">
+                <span>📶</span>
+                {% if wifi_status %}
+                    Connected to Office WiFi
+                {% else %}
+                    Not connected to Office WiFi (WFH mode only)
+                {% endif %}
+            </div>
+        </div>
+<!-- Add this after wifi-status div -->
+<!-- <div class="status-section" style="margin-top: 20px; text-align: center;">
+    <div id="onlineStatus" class="online-indicator">
+        <span class="status-dot online"></span>
+        <span id="statusText">Online</span>
+    </div>
+    
+    <div id="breakControls" style="margin-top: 15px;">
+        <button id="startBreakBtn" class="glass-btn warning" onclick="startBreak()" style="display: inline-block; width: auto; padding: 8px 20px;">
+            ☕ Take Break
+        </button>
+        <button id="endBreakBtn" class="glass-btn success" onclick="endBreak()" style="display: inline-block; width: auto; padding: 8px 20px; display: none;">
+            ✅ End Break
+        </button>
+    </div>
+    
+    <div id="breakTimer" style="margin-top: 10px; font-size: 14px; color: var(--text-secondary); display: none;">
+        Break time: <span id="timerDisplay">00:00</span>
+    </div>
+</div> -->
+
+<style>
+    .online-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 30px;
+    }
+    .status-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+    }
+    .status-dot.online {
+        background: #4caf50;
+        box-shadow: 0 0 10px #4caf50;
+        animation: pulse 2s infinite;
+    }
+    .status-dot.break {
+        background: #ff9800;
+        box-shadow: 0 0 10px #ff9800;
+    }
+    .status-dot.offline {
+        background: #f44336;
+    }
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+    }
+</style>
+
+<script>
+    let breakInterval;
+    let breakStartTime;
+    
+    // Heartbeat - send online status every 30 seconds
+    setInterval(async function() {
+        try {
+            await fetch('/api/heartbeat', { method: 'POST' });
+        } catch (error) {
+            console.error('Heartbeat error:', error);
+        }
+    }, 60000);
+    
+    async function startBreak() {
+        try {
+            const response = await fetch('/api/start-break', { method: 'POST' });
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('startBreakBtn').style.display = 'none';
+                document.getElementById('endBreakBtn').style.display = 'inline-block';
+                document.getElementById('breakTimer').style.display = 'block';
+                document.querySelector('.status-dot').className = 'status-dot break';
+                document.getElementById('statusText').textContent = 'On Break';
+                
+                breakStartTime = new Date();
+                breakInterval = setInterval(updateBreakTimer, 1000);
+            }
+        } catch (error) {
+            alert('Error starting break');
+        }
+    }
+    
+    async function endBreak() {
+        try {
+            const response = await fetch('/api/end-break', { method: 'POST' });
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('startBreakBtn').style.display = 'inline-block';
+                document.getElementById('endBreakBtn').style.display = 'none';
+                document.getElementById('breakTimer').style.display = 'none';
+                document.querySelector('.status-dot').className = 'status-dot online';
+                document.getElementById('statusText').textContent = 'Online';
+                
+                clearInterval(breakInterval);
+            }
+        } catch (error) {
+            alert('Error ending break');
+        }
+    }
+    
+    function updateBreakTimer() {
+        if (breakStartTime) {
+            const now = new Date();
+            const diff = Math.floor((now - breakStartTime) / 1000);
+            const minutes = Math.floor(diff / 60);
+            const seconds = diff % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+    }
+    
+    // On page unload (logout/close), mark as offline
+    window.addEventListener('beforeunload', function() {
+        navigator.sendBeacon('/api/heartbeat?status=offline');
+    });
+</script>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div class="stat-value">{{ stats.present }}</div>
+                <div class="stat-label">Present</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ stats.wfh }}</div>
+                <div class="stat-label">WFH</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ stats.leave }}</div>
+                <div class="stat-label">Leave</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value">{{ stats.total }}</div>
+                <div class="stat-label">Total Days</div>
+            </div>
+        </div>
+
+<!-- Break Timer Card - Modern Design with Live Counter -->
+<!-- <div class="break-card">
+    <div class="break-card-header">
+        <div class="break-title">
+            <i class="fas fa-coffee"></i>
+            <h3>Break Timer</h3>
+        </div>
+        <div class="status-indicator" id="statusIndicator">
+            <span class="status-dot"></span>
+            <span class="status-text">Working</span>
+        </div>
+    </div>
+
+    <div class="break-content">
+       
+        <div class="timer-display" id="timerDisplay">
+            <span class="timer-minutes" id="timerMinutes">00</span>
+            <span class="timer-colon">:</span>
+            <span class="timer-seconds" id="timerSeconds">00</span>
+        </div>
+
+      
+        <div class="break-stats-grid">
+            <div class="stat-item">
+                <span class="stat-label">Today's Break</span>
+                <span class="stat-value" id="totalBreak">0 min</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Breaks Taken</span>
+                <span class="stat-value" id="breakCount">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Remaining</span>
+                <span class="stat-value" id="remainingBreak">60 min</span>
+            </div>
+        </div>
+
+     
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+
+    
+        <button class="break-action-btn start" id="breakActionBtn" onclick="toggleBreak()">
+            <span class="btn-icon"><i class="fas fa-play"></i></span>
+            <span class="btn-text">Start Break</span>
+        </button>
+
+       
+        <div class="break-message" id="breakMessage"></div>
+    </div>
+</div> -->
+
+
+
+<script>
+// Break Timer Variables
+let breakTimerInterval;
+let breakSeconds = 0;
+let breakMinutes = 0;
+let isOnBreak = false;
+
+// Load break stats when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    loadBreakStats();
+});
+
+function loadBreakStats() {
+    fetch('/api/employee/break-stats')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateBreakUI(data);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateBreakUI(data) {
+    const stats = data.break_stats;
+    const status = data.status;
+    
+    // Update status indicator
+    const statusIndicator = document.getElementById('statusIndicator');
+    const statusText = document.querySelector('.status-text');
+    
+    if (status === 'break') {
+        statusIndicator.className = 'status-indicator break';
+        statusText.textContent = 'On Break';
+        isOnBreak = true;
+        
+        // Start timer if on break
+        if (stats.current_break_minutes > 0) {
+            breakMinutes = Math.floor(stats.current_break_minutes);
+            breakSeconds = Math.round((stats.current_break_minutes - breakMinutes) * 60);
+            startBreakTimer();
+        }
+    } else {
+        statusIndicator.className = 'status-indicator working';
+        statusText.textContent = 'Working';
+        isOnBreak = false;
+        stopBreakTimer();
+        resetTimerDisplay();
+    }
+    
+    // Update stats
+    document.getElementById('totalBreak').textContent = stats.total_display;
+    document.getElementById('breakCount').textContent = stats.break_count;
+    document.getElementById('remainingBreak').textContent = stats.remaining_display;
+    
+    // Update progress bar
+    const progressBar = document.getElementById('progressBar');
+    progressBar.style.width = stats.percentage_used + '%';
+    
+    // Update button based on break status
+    updateBreakButton(status === 'break');
+}
+
+function resetTimerDisplay() {
+    document.getElementById('timerMinutes').textContent = '00';
+    document.getElementById('timerSeconds').textContent = '00';
+    breakMinutes = 0;
+    breakSeconds = 0;
+}
+
+function updateBreakButton(onBreak) {
+    const button = document.getElementById('breakActionBtn');
+    const icon = button.querySelector('.btn-icon i');
+    const text = button.querySelector('.btn-text');
+    
+    if (onBreak) {
+        button.className = 'break-action-btn stop';
+        icon.className = 'fas fa-stop';
+        text.textContent = 'End Break';
+        button.disabled = false;
+    } else {
+        button.className = 'break-action-btn start';
+        icon.className = 'fas fa-play';
+        text.textContent = 'Start Break';
+        button.disabled = false;
+    }
+}
+
+function startBreakTimer() {
+    if (breakTimerInterval) clearInterval(breakTimerInterval);
+    
+    breakTimerInterval = setInterval(() => {
+        breakSeconds++;
+        
+        if (breakSeconds >= 60) {
+            breakSeconds = 0;
+            breakMinutes++;
+        }
+        
+        // Update display with leading zeros
+        document.getElementById('timerMinutes').textContent = 
+            breakMinutes.toString().padStart(2, '0');
+        document.getElementById('timerSeconds').textContent = 
+            breakSeconds.toString().padStart(2, '0');
+        
+        // Show message for long breaks
+        if (breakMinutes === 15 && breakSeconds === 0) {
+            showBreakMessage('Taking a long break? Remember to stay productive!', 'info');
+        } else if (breakMinutes === 20 && breakSeconds === 0) {
+            showBreakMessage('Break is getting too long. Time to get back to work!', 'warning');
+        }
+    }, 1000);
+}
+
+function stopBreakTimer() {
+    if (breakTimerInterval) {
+        clearInterval(breakTimerInterval);
+        breakTimerInterval = null;
+    }
+}
+
+function toggleBreak() {
+    if (isOnBreak) {
+        endBreak();
+    } else {
+        startBreak();
+    }
+}
+
+function startBreak() {
+    const button = document.getElementById('breakActionBtn');
+    button.disabled = true;
+    button.querySelector('.btn-text').textContent = 'Starting...';
+    
+    fetch('/api/start-break', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showBreakMessage('Break started! Take a moment to relax ☕', 'success');
+            loadBreakStats();
+        } else {
+            showBreakMessage('Failed to start break', 'warning');
+            updateBreakButton(false);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showBreakMessage('An error occurred', 'warning');
+        updateBreakButton(false);
+    });
+}
+
+function endBreak() {
+    const button = document.getElementById('breakActionBtn');
+    button.disabled = true;
+    button.querySelector('.btn-text').textContent = 'Ending...';
+    
+    // Store current timer values before ending
+    const endedMinutes = breakMinutes;
+    const endedSeconds = breakSeconds;
+    
+    fetch('/api/end-break', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show break summary with the exact time they stopped
+            let breakSummary = '';
+            if (endedMinutes > 0) {
+                breakSummary = `Great break! You were away for ${endedMinutes}m ${endedSeconds}s ☕`;
+            } else {
+                breakSummary = `Great break! You were away for ${endedSeconds}s ☕`;
+            }
+            showBreakMessage(breakSummary, 'success');
+            
+            // Reset timer display
+            resetTimerDisplay();
+            
+            // Load updated stats which will set button back to "Start Break"
+            setTimeout(() => {
+                loadBreakStats();
+            }, 500);
+        } else {
+            showBreakMessage('Failed to end break', 'warning');
+            updateBreakButton(true);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showBreakMessage('An error occurred', 'warning');
+        updateBreakButton(true);
+    });
+}
+
+function showBreakMessage(message, type) {
+    const msgDiv = document.getElementById('breakMessage');
+    msgDiv.textContent = message;
+    msgDiv.className = `break-message ${type}`;
+    
+    // Clear message after 5 seconds
+    setTimeout(() => {
+        msgDiv.className = 'break-message';
+        msgDiv.textContent = '';
+    }, 5000);
+}
+
+// Refresh stats every 30 seconds (but don't interrupt live timer)
+setInterval(() => {
+    if (!isOnBreak) {
+        loadBreakStats();
+    }
+}, 30000);
+</script>
+
+<!-- Simple Break Status Card -->
+<div class="glass-card" style="margin: 20px 0; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h3 style="color: #0F9D8A; margin: 0;">
+            <span>☕</span> Break Status
+        </h3>
+        <div id="breakStatusBadge" style="
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            background: rgba(40,167,69,0.1);
+            color: #28a745;
+            border: 1px solid rgba(40,167,69,0.3);
+        ">
+            ● Working
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 20px 0;">
+        <div id="breakButtons">
+            <button id="startBreakBtn" onclick="startBreak()" style="
+                background: linear-gradient(135deg, #0F9D8A, #7ED957);
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                margin: 0 10px;
+            ">
+                ▶ Start Break
+            </button>
+            
+            <button id="endBreakBtn" onclick="endBreak()" style="
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 12px 30px;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                margin: 0 10px;
+                display: none;
+            ">
+                ⏹ End Break
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple break status management
+document.addEventListener('DOMContentLoaded', function() {
+    loadBreakStatus();
+});
+
+function loadBreakStatus() {
+    fetch('/api/employee/break-status')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateButtonState(data.on_break);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateButtonState(isOnBreak) {
+    const startBtn = document.getElementById('startBreakBtn');
+    const endBtn = document.getElementById('endBreakBtn');
+    const badge = document.getElementById('breakStatusBadge');
+    
+    if (isOnBreak) {
+        // Show End Break button
+        startBtn.style.display = 'none';
+        endBtn.style.display = 'inline-block';
+        badge.innerHTML = '● On Break';
+        badge.style.background = 'rgba(255,193,7,0.1)';
+        badge.style.color = '#ffc107';
+    } else {
+        // Show Start Break button
+        startBtn.style.display = 'inline-block';
+        endBtn.style.display = 'none';
+        badge.innerHTML = '● Working';
+        badge.style.background = 'rgba(40,167,69,0.1)';
+        badge.style.color = '#28a745';
+    }
+}
+
+function startBreak() {
+    const startBtn = document.getElementById('startBreakBtn');
+    startBtn.disabled = true;
+    startBtn.innerHTML = '⏳ Starting...';
+    
+    fetch('/api/start-break', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI immediately
+            updateButtonState(true);
+        } else {
+            alert('Failed to start break');
+        }
+        startBtn.disabled = false;
+        startBtn.innerHTML = '▶ Start Break';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error starting break');
+        startBtn.disabled = false;
+        startBtn.innerHTML = '▶ Start Break';
+    });
+}
+
+function endBreak() {
+    const endBtn = document.getElementById('endBreakBtn');
+    endBtn.disabled = true;
+    endBtn.innerHTML = '⏳ Ending...';
+    
+    fetch('/api/end-break', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'}
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI immediately
+            updateButtonState(false);
+        } else {
+            alert('Failed to end break');
+        }
+        endBtn.disabled = false;
+        endBtn.innerHTML = '⏹ End Break';
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error ending break');
+        endBtn.disabled = false;
+        endBtn.innerHTML = '⏹ End Break';
+    });
+}
+</script>
+        <!-- Action Cards -->
+        <div class="action-cards">
+            <!-- Attendance Card -->
+            <div class="action-card {% if today_attendance and today_attendance.marked %}disabled{% endif %}" 
+                 onclick="{% if not today_attendance or not today_attendance.marked %}openAttendanceModal(){% endif %}">
+                <div class="action-icon">📋</div>
+                <h3 class="action-title">Mark Attendance</h3>
+                <p class="action-description">
+                    {% if today_attendance and today_attendance.marked %}
+                        Already marked as {{ today_attendance.type }} at {{ today_attendance.time }}
+                    {% else %}
+                        Mark your attendance for today
+                    {% endif %}
+                </p>
+                {% if today_attendance and today_attendance.marked %}
+                    <span class="action-status completed">✓ Completed</span>
+                {% else %}
+                    <span class="action-status pending">⏳ Pending</span>
+                {% endif %}
+            </div>
+
+         <!-- Work Log Card - Update this section -->
+<div class="action-card {% if today_work_log and today_work_log.submitted %}disabled{% endif %}" 
+     onclick="window.location.href='/work-log'">
+    <div class="action-icon">📝</div>
+    <h3 class="action-title">Daily Work Log</h3>
+    <p class="action-description">
+        {% if today_work_log and today_work_log.submitted %}
+            Submitted: {{ today_work_log.description[:50] }}...
+        {% else %}
+            Record what you worked on today
+        {% endif %}
+    </p>
+    {% if today_work_log and today_work_log.submitted %}
+        <span class="action-status completed">✓ Completed</span>
+    {% else %}
+        <span class="action-status pending">⏳ Pending</span>
+    {% endif %}
+</div>
+
+        <!-- Recent Work Logs -->
+        <div class="recent-logs">
+            <div class="section-header">
+                <h3 class="section-title">Recent Work Logs</h3>
+                <a href="/employee/history" class="view-all">View All →</a>
+            </div>
+            
+            {% if recent_logs %}
+                {% for log in recent_logs %}
+                <div class="log-item">
+                    <div class="log-date">{{ log.date }}</div>
+                    <div class="log-description">{{ log.description }}</div>
+                    <div class="log-hours">{{ log.hours }} hrs</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <p>No work logs yet. Submit your first work log!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Attendance Modal -->
+    <div class="modal" id="attendanceModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Mark Attendance</h2>
+                <button class="modal-close" onclick="closeAttendanceModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Select your attendance type for today:</p>
+                
+                <div class="attendance-selector">
+                    <div class="attendance-option" onclick="selectAttendance('WFO')" id="optWFO">
+                        <div>🏢</div>
+                        <div>Work From Office</div>
+                    </div>
+                    <div class="attendance-option wfh" onclick="selectAttendance('WFH')" id="optWFH">
+                        <div>🏠</div>
+                        <div>Work From Home</div>
+                    </div>
+                    <div class="attendance-option leave" onclick="selectAttendance('Leave')" id="optLeave">
+                        <div>🌴</div>
+                        <div>Leave</div>
+                    </div>
+                </div>
+
+                <div id="attendanceMessage" class="alert" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeAttendanceModal()">Cancel</button>
+                <button class="glass-btn primary" onclick="submitAttendance()" id="submitAttendanceBtn">
+                    Confirm Attendance
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Work Log Modal -->
+    <div class="modal" id="workLogModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Daily Work Log</h2>
+                <button class="modal-close" onclick="closeWorkLogModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Please describe your work for today:</p>
+                
+                <div class="work-log-form">
+                    <div class="form-group">
+                        <label class="form-label">Work Description <span style="color: var(--error-color);">*</span></label>
+                        <textarea class="glass-input" id="workDescription" rows="5" 
+                                  placeholder="Describe what you worked on today (minimum 20 characters)"
+                                  oninput="updateCharCounter()"></textarea>
+                        <div class="char-counter" id="charCounter">0/20 characters</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Hours Worked</label>
+                        <input type="number" class="glass-input" id="hoursWorked" 
+                               value="8" min="1" max="24" step="0.5">
+                    </div>
+
+                    <div id="workLogMessage" class="alert" style="display: none;"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="glass-btn" onclick="closeWorkLogModal()">Cancel</button>
+                <button class="glass-btn primary" onclick="submitWorkLog()" id="submitWorkLogBtn">
+                    Submit Work Log
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script>
+        // Pass data from Flask to JavaScript
+        const wifiStatus = {{ 'true' if wifi_status else 'false' }};
+        const todayAttendance = {{ today_attendance|tojson|safe }};
+        const todayWorkLog = {{ today_work_log|tojson|safe }};
+    </script>
+</body>
+</html>
